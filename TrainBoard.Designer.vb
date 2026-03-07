@@ -619,7 +619,7 @@ Partial Class TrainBoard
         TEMPLATEStopsAt.Name = "TEMPLATEStopsAt"
         TEMPLATEStopsAt.Size = New Size(600, 64)
         TEMPLATEStopsAt.TabIndex = 93
-        TEMPLATEStopsAt.Text = "Yeerongpilly"
+        TEMPLATEStopsAt.Text = "Eagle Farm"
         TEMPLATEStopsAt.TextAlign = ContentAlignment.MiddleLeft
         TEMPLATEStopsAt.Visible = False
         ' 
