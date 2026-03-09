@@ -191,11 +191,11 @@ Public Class TrainBoard
                 ElseIf total >= 25 Then
                     rows = 9 : cols = 3 : lblWidth = 295 : lblHeight = 41 : fontSize = 23.25F
                 ElseIf total >= 17 Then
-                    rows = 8 : cols = 3 : lblWidth = 295 : lblHeight = 46 : fontSize = 26.75F
+                    rows = 8 : cols = 3 : lblWidth = 297 : lblHeight = 46 : fontSize = 23.25F
                 ElseIf total >= 15 Then
                     rows = 8 : cols = 2 : lblWidth = 400 : lblHeight = 48 : fontSize = 29.75F
                 ElseIf total >= 13 Then
-                    rows = 7 : cols = 2 : lblWidth = 420 : lblHeight = 57 : fontSize = 34.75F
+                    rows = 7 : cols = 2 : lblWidth = 420 : lblHeight = 57 : fontSize = 32.75F
                 ElseIf total >= 7 Then
                     rows = 6 : cols = 2 : lblWidth = 430 : lblHeight = 62 : fontSize = 38.75F
                 ElseIf total >= 1 Then
@@ -342,6 +342,7 @@ Public Class TrainBoard
     Private ScrollSpeed As Integer = 2 ' pixels per tick
 
     Private Async Sub MainBoard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
         SetStyle(ControlStyles.OptimizedDoubleBuffer Or ControlStyles.AllPaintingInWmPaint Or ControlStyles.UserPaint, True)
         TickerPanel.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic).SetValue(TickerPanel, True)
 
@@ -657,7 +658,7 @@ Public Class TrainBoard
                 End If
             End If
 
-            ' Fallback: look it up in the latest GTFS feed if needed
+            ' fallback look it up in the latest GTFS feed if needed
             If matchingTrip Is Nothing Then
                 matchingTrip = Nothing
             End If
