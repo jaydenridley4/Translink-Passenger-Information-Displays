@@ -476,9 +476,10 @@ Public Class TrainBoard
         Try
             Using client As New HttpClient()
                 Dim data As Byte() = Await client.GetByteArrayAsync("https://gtfsrt.api.translink.com.au/api/realtime/SEQ/TripUpdates/Rail")
+
                 Dim feed As New FeedMessage()
 
-                Using stream As New MemoryStream(data)
+                Using stream As New MemoryStream(Data)
                     feed.MergeFrom(stream)
                 End Using
 
