@@ -51,9 +51,9 @@ Public Class TrainBoard
 
     Private Async Function InitializeMappingsAsync() As Task
         ' URLs for your hosted CSV files - change them if you wish (no guarantee I will remember to update mine lol)
-        Dim stopCsvUrl = "https://jaydenridley4.github.io/DepartureBoards/Train/StopIds.csv"
-        Dim routeCsvUrl = "https://jaydenridley4.github.io/DepartureBoards/Train/RouteExp.csv"
-        Dim EZcsvUrl = "https://jaydenridley4.github.io/DepartureBoards/Train/ExpressZones.csv"
+        Dim stopCsvUrl = "https://jrid4.xyz/DepartureBoards/Train/StopIds.csv"
+        Dim routeCsvUrl = "https://jrid4.xyz/DepartureBoards/Train/RouteExp.csv"
+        Dim EZcsvUrl = "https://jrid4.xyz/DepartureBoards/Train/ExpressZones.csv"
 
         StopIdToStation = Await LoadStopIdMappingAsync(stopCsvUrl)
         RouteDictionary = Await LoadRouteMappingAsync(routeCsvUrl)
