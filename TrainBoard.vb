@@ -64,7 +64,6 @@ Public Class TrainBoard
     Dim ServStopVar2
 
     Private Sub ShowServiceStopsForDeparture(dep As DepartureData, trip As TransitRealtime.TripUpdate)
-        'debug because it kept breaking 31/30/25
         If dep Is Nothing Then
             MessageBox.Show("ShowServiceStopsForDeparture called with Nothing for dep — check source data.")
             Exit Sub
@@ -209,10 +208,10 @@ Public Class TrainBoard
             ' If any subsequent name contains "Airport", show Airtrain logo and adjust offsets
             If hasAirport Then
                 AirtrainLogo.Visible = True
-                StopList10.Size = New Drawing.Size(920, 345)
+                _stopListDesignHeight = 345
             Else
                 AirtrainLogo.Visible = False
-                StopList10.Size = New Drawing.Size(920, 460)
+                _stopListDesignHeight = 460
             End If
 
             ' Prepare ServiceStops background color from RouteDictionary using same logic as UpdateTrainPanels
@@ -252,20 +251,15 @@ Public Class TrainBoard
                 StopList10.WrapContents = True
                 StopList10.AutoScroll = True
 
-                ' Create font for the labels
-                Dim lblFont As New Font("Arial", fontSize, FontStyle.Bold)
-
                 For Each lblText In allLabels
                     Dim lbl As New Label() With {
             .AutoSize = False,
             .ForeColor = Color.White,
             .TextAlign = ContentAlignment.MiddleLeft,
             .Text = lblText,
-            .Size = New Size(lblWidth, lblHeight),
-            .Font = lblFont,
-            .Margin = New Padding(3),
             .BackColor = Color.Transparent,
-            .Padding = New Padding(0)
+            .Padding = New Padding(0),
+            .Tag = New StopLabelDesign With {.W = lblWidth, .H = lblHeight, .FontPt = fontSize}
         }
                     StopList10.Controls.Add(lbl)
                 Next
@@ -273,12 +267,43 @@ Public Class TrainBoard
                 StopList10.ResumeLayout()
             End If
 
+            ApplyStopListScale()
+
             ServiceStops.Visible = True
             DepartsTitle.Visible = True
 
         Catch ex As Exception
             MessageBox.Show("Error building stop list: " & ex.Message)
         End Try
+    End Sub
+
+    Private Class StopLabelDesign
+        Public W As Integer, H As Integer, FontPt As Single
+    End Class
+    Private _stopListDesignHeight As Integer = 460
+    Private _stopFont As Font
+
+    Private Sub ApplyStopListScale()
+        If _scaler Is Nothing Then Return
+        Dim s = _scaler.Scale
+        StopList10.SuspendLayout()
+
+        StopList10.Size = New Size(_scaler.Px(920), CInt(Math.Ceiling(_stopListDesignHeight * s)))
+        Dim m = CInt(Math.Floor(3 * s))
+
+        Dim newFont As Font = Nothing
+        For Each lbl In StopList10.Controls.OfType(Of Label)()
+            Dim d = TryCast(lbl.Tag, StopLabelDesign)
+            If d Is Nothing Then Continue For
+            If newFont Is Nothing Then newFont = New Font("Arial", d.FontPt * s, FontStyle.Bold, GraphicsUnit.Point)
+            lbl.Size = New Size(CInt(Math.Floor(d.W * s)), CInt(Math.Floor(d.H * s)))
+            lbl.Margin = New Padding(m)
+            lbl.Font = newFont
+        Next
+        StopList10.ResumeLayout(True)
+
+        If _stopFont IsNot Nothing Then _stopFont.Dispose()
+        _stopFont = newFont
     End Sub
 
     ' Helper clone function for Label since Label.Clone() isn't built-in in WinForms
@@ -341,7 +366,18 @@ Public Class TrainBoard
     Private ScrollOffset As Integer = 0
     Private ScrollSpeed As Integer = 2 ' pixels per tick
 
+    Private _scaler As UniformScaler
     Private Async Sub MainBoard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        For i = 1 To 6
+            Dim ngr = Controls.Find($"E{i}_NGR_2", True).FirstOrDefault()
+            If ngr IsNot Nothing Then
+                ngr.Left -= 4
+                ngr.Width += 8
+            End If
+        Next
+        _scaler = New UniformScaler(Me)
+        AddHandler _scaler.ScaleChanged, AddressOf ApplyStopListScale
+        Me.MinimumSize = Me.SizeFromClientSize(New Size(480, 270))
 
         SetStyle(ControlStyles.OptimizedDoubleBuffer Or ControlStyles.AllPaintingInWmPaint Or ControlStyles.UserPaint, True)
         TickerPanel.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic).SetValue(TickerPanel, True)
@@ -366,8 +402,8 @@ Public Class TrainBoard
 
                 Case "-fullscreen"
                     ' Set size
-                    Me.MinimumSize = New Size(960, 540)
-                    Me.MaximumSize = New Size(960, 540)
+                    ' Me.MinimumSize = New Size(960, 540)
+                    ' Me.MaximumSize = New Size(960, 540)
                     ' Remove border and maximize
                     Me.FormBorderStyle = FormBorderStyle.None
                     Me.WindowState = FormWindowState.Maximized
@@ -396,22 +432,14 @@ Public Class TrainBoard
     Private Sub Form1_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         ' Check for Alt + F
         If e.Alt AndAlso e.KeyCode = Keys.F Then
-            If Me.MinimumSize = New Size(960, 540) Then
-                ' Set size
-                Me.MinimumSize = New Size(976, 579)
-                Me.MaximumSize = New Size(976, 579)
-                ' Remove border and maximize
-                Me.FormBorderStyle = FormBorderStyle.FixedSingle
+            If Me.FormBorderStyle = FormBorderStyle.None Then
                 Me.WindowState = FormWindowState.Normal
+                Me.FormBorderStyle = FormBorderStyle.Sizable
+                Me.ClientSize = _scaler.BaseClientSize
             Else
-                ' Set size
-                Me.MinimumSize = New Size(960, 540)
-                Me.MaximumSize = New Size(960, 540)
-                ' Remove border and maximize
                 Me.FormBorderStyle = FormBorderStyle.None
                 Me.WindowState = FormWindowState.Maximized
             End If
-
             e.Handled = True
         End If
         ' Check for Alt + Q
@@ -479,7 +507,7 @@ Public Class TrainBoard
 
                 Dim feed As New FeedMessage()
 
-                Using stream As New MemoryStream(Data)
+                Using stream As New MemoryStream(data)
                     feed.MergeFrom(stream)
                 End Using
 
@@ -694,28 +722,17 @@ Public Class TrainBoard
 
     Private Sub TickerPanel_Paint(sender As Object, e As PaintEventArgs) Handles TickerPanel.Paint
         Dim g = e.Graphics
-
-        ' Optional: smooth rendering
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
+        Dim s = If(_scaler Is Nothing, 1.0F, _scaler.Scale)
+        g.ScaleTransform(s, s)
 
-        ' Set font and brush
-        Dim font As New Font("Arial", 20, FontStyle.Bold)
-        Dim brush As New SolidBrush(Color.FromArgb(255, 255, 255))
-
-        Dim panelWidth = TickerPanel.Width
-        Dim textWidth = TextRenderer.MeasureText(TickerText, font).Width
-
-        ' Wrap around
-        If ScrollOffset >= textWidth Then
-            ScrollOffset = 0
-        End If
-
-        ' Shift drawing leftward
-        g.TranslateTransform(-ScrollOffset, 0)
-
-        ' Draw text twice for smooth looping
-        g.DrawString(TickerText, font, brush, 0, 0)
-        g.DrawString(TickerText, font, brush, textWidth, 0)
+        Using font As New Font("Arial", 20, FontStyle.Bold), brush As New SolidBrush(Color.White)
+            Dim textWidth = TextRenderer.MeasureText(TickerText, font).Width
+            If ScrollOffset >= textWidth Then ScrollOffset = 0
+            g.TranslateTransform(-ScrollOffset, 0)
+            g.DrawString(TickerText, font, brush, 0, 0)
+            g.DrawString(TickerText, font, brush, textWidth, 0)
+        End Using
     End Sub
 
     Private Sub TickerTimer_Tick(sender As Object, e As EventArgs) Handles TickerTimer.Tick

@@ -99,6 +99,8 @@ Partial Class TrainBoard
         TickerTimer = New Timer(components)
         TickerPanel = New Panel()
         DisplayPanel = New Panel()
+        HeaderDeparts = New Label()
+        HeaderPlatform = New Label()
         NoDepMsg = New Label()
         DepartsTitle = New Label()
         CType(E1_NGR_1, ComponentModel.ISupportInitialize).BeginInit()
@@ -154,13 +156,13 @@ Partial Class TrainBoard
         ' 
         ' Label3
         ' 
-        Label3.Font = New Font("Arial", 18F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Label3.Font = New Font("Arial", 18.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Label3.ForeColor = Color.White
         Label3.Location = New Point(0, 0)
         Label3.Name = "Label3"
-        Label3.Size = New Size(960, 32)
+        Label3.Size = New Size(600, 32)
         Label3.TabIndex = 12
-        Label3.Text = "Service                                                                                    Platform            Departs"
+        Label3.Text = "Service"
         Label3.TextAlign = ContentAlignment.MiddleLeft
         ' 
         ' E1_Countdown
@@ -1022,6 +1024,8 @@ Partial Class TrainBoard
         ' 
         ' DisplayPanel
         ' 
+        DisplayPanel.Controls.Add(HeaderDeparts)
+        DisplayPanel.Controls.Add(HeaderPlatform)
         DisplayPanel.Controls.Add(Label3)
         DisplayPanel.Controls.Add(TickerPanel)
         DisplayPanel.Controls.Add(Entry1)
@@ -1034,6 +1038,28 @@ Partial Class TrainBoard
         DisplayPanel.Name = "DisplayPanel"
         DisplayPanel.Size = New Size(960, 475)
         DisplayPanel.TabIndex = 20
+        ' 
+        ' HeaderDeparts
+        ' 
+        HeaderDeparts.Font = New Font("Arial", 18.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        HeaderDeparts.ForeColor = Color.White
+        HeaderDeparts.Location = New Point(800, 0)
+        HeaderDeparts.Name = "HeaderDeparts"
+        HeaderDeparts.Size = New Size(160, 32)
+        HeaderDeparts.TabIndex = 21
+        HeaderDeparts.Text = "Departs"
+        HeaderDeparts.TextAlign = ContentAlignment.MiddleRight
+        ' 
+        ' HeaderPlatform
+        ' 
+        HeaderPlatform.Font = New Font("Arial", 18.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        HeaderPlatform.ForeColor = Color.White
+        HeaderPlatform.Location = New Point(664, 0)
+        HeaderPlatform.Name = "HeaderPlatform"
+        HeaderPlatform.Size = New Size(129, 32)
+        HeaderPlatform.TabIndex = 20
+        HeaderPlatform.Text = "Platform"
+        HeaderPlatform.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NoDepMsg
         ' 
@@ -1063,7 +1089,7 @@ Partial Class TrainBoard
         ' 
         ' TrainBoard
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.Black
         ClientSize = New Size(960, 540)
@@ -1073,10 +1099,6 @@ Partial Class TrainBoard
         Controls.Add(DisplayPanel)
         Controls.Add(BoardTitle)
         Controls.Add(BoardClock)
-        FormBorderStyle = FormBorderStyle.FixedSingle
-        MaximizeBox = False
-        MaximumSize = New Size(976, 579)
-        MinimumSize = New Size(976, 579)
         Name = "TrainBoard"
         Text = "Queensland Rail Departure Board - Next (1-6) Trains North"
         CType(E1_NGR_1, ComponentModel.ISupportInitialize).EndInit()
@@ -1182,5 +1204,7 @@ Partial Class TrainBoard
     Friend WithEvents E6_Airport As Label
     Friend WithEvents TEMPLATEStopsAt As Label
     Friend WithEvents AirtrainLogo As PictureBox
+    Friend WithEvents HeaderPlatform As Label
+    Friend WithEvents HeaderDeparts As Label
 
 End Class
